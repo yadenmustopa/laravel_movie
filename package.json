@@ -1,21 +1,30 @@
 {
     "private": true,
     "scripts": {
-        "dev": "npm run development",
-        "development": "mix",
-        "watch": "mix watch",
-        "watch-poll": "mix watch -- --watch-options-poll=1000",
-        "hot": "mix watch --hot",
-        "prod": "npm run production",
-        "production": "mix --production"
+        "dev": "cross-env NODE_ENV=development vite",
+        "build": "cross-env NODE_ENV=production vite build && cpy ./temp_public/*.* ./public/ --flat ",
+        "preview": "vite preview",
+        "postinstall": "cpy ./node_modules/material-icons/iconfont/*.* ./src/fonts/"
     },
     "devDependencies": {
+        "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+        "autoprefixer": "^10.4.7",
         "axios": "^0.21",
+        "cpy-cli": "^4.1.0",
+        "cross-env": "^7.0.3",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
-        "postcss": "^8.1.14"
+        "postcss": "^8.4.14",
+        "postcss-preset-env": "^7.7.2",
+        "rollup": "^2.76.0",
+        "sass": "^1.53.0",
+        "svelte": "^3.44.0",
+        "tailwindcss": "^3.1.5",
+        "vite": "^2.9.9",
+        "vite-plugin-html": "^3.2.0"
     },
     "dependencies": {
-        "carbon": "^0.5.0"
+        "carbon": "^0.5.0",
+        "daisyui": "^2.19.0"
     }
 }
