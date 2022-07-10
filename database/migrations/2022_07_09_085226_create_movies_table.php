@@ -17,12 +17,13 @@ class CreateMoviesTable extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
-            $table->decimal('rating');
-            $table->enum('genre',['action','romance','anime','horor','drama','crime','comedy','fantasy']);
-            $table->integer('created_at');
-            $table->integer('updated_at');
+            $table->text('poster');
+            $table->decimal('rating')->default(0.00);
+            $table->enum('genre',['action','romance','anime','horor','drama','crime','comedy','fantasy'])->default('action');
+            $table->dateTime("created_at", $precision = 0);
+            $table->dateTime("updated_at", $precision = 0 );
             $table->index('title');
-            $table->index('description');
+
         });
     }
 

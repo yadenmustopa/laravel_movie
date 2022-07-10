@@ -4,16 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Movies extends Model
 {
     use HasFactory;
 
-    protected function getDateFormat()
-    {
-        return 'U';
-    }
-
+    protected $dateformat = 'U';
     protected $fillable=['title','description','genre','rating','poster'];
 }
 
