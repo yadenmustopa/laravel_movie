@@ -2,21 +2,24 @@
     "use strict";
 
     import { onMount, createEventDispatcher } from 'svelte';
-    import {} from 'svelte';
 
-    const dispatch = createEventDispatcher;
+
+    export let count_all = 0;
+
+    const dispatch = createEventDispatcher();
 
     $:if( keyword || ! keyword ){
         // @ts-ignore
         dispatch("change_keyword",{ value : keyword });
+        console.log({ keyword });
     }
     $:if( sort_by || ! sort_by ){
         // @ts-ignore
-        dispatch("change_sort_by",{ value : keyword });
+        dispatch("change_sort_by",{ value : sort_by });
     }
     $:if( filter || ! filter ){
         // @ts-ignore
-        dispatch("change_filter",{ value : keyword });
+        dispatch("change_filter",{ value : filter });
     }
     $:if( per_page ){
         // @ts-ignore
@@ -36,7 +39,7 @@
         filter   = "";
     }
 </script>
-<div class="lg:col-start-2 md:col-start-2 lg:col-end-2 px-4 mb-14">
+<div class="lg:col-start-2 md:col-start-2 lg:col-end-2 px-4 mb-14 sticky sticky-lg-top">
     <div class="w-full bg-white rounded-xl overflow-hdden shadow-md p-4">
             <div class="relative flex w-full flex-wrap items-stretch mb-3">
                 <input type="text" placeholder="Search…" class="input input-success input-bordered w-full" bind:value={ keyword }/>
@@ -72,6 +75,7 @@
 
             <div class="relative flex w-full flex-wrap items-stretch mb-3">
                             <select class="select select-success w-full " bind:value = { per_page }>
+                                <option value ="5">5</option>
                                 <option value ="10" selected >10</option>
                                 <option value ="15">15</option>
                                 <option value ="25">25</option>
@@ -83,6 +87,11 @@
             <div class="relative items-stretch mb-3 w-full">
 
                 <button type="button" class="btn btn-error w-full" on:click={ resetFilter }>Reset Filter</button>
+            </div>
+
+            <div class="mt-6 flex justify-between">
+                <div>Menampilkan :</div>
+                <div><b>{ count_all } &nbsp; Data</b></div>
             </div>
     </div>
 </div>

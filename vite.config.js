@@ -25,7 +25,7 @@ export default defineConfig({
     base: '',
     publicDir: PUBLIC_DIR,
     build: {
-        minify:false,
+        // minify:false,
         outDir: BUILD_DIR,
         assetsInlineLimit: 0,
         emptyOutDir: true,

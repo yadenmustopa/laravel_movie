@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Movies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use File;
 
 class Movie extends Controller
 {
@@ -11,26 +12,38 @@ class Movie extends Controller
     {
         $filter   = $request->filter;
         $search   = $request->search;
-        $per_page = $request->per_page ?? 10;
-        $page     = $request->page ?? 1;
-        $order_by = $request->order_by ?? 'id:desc';
+        $per_page = ( $request->per_page ) ? $request->per_page : 10;
+        $page     = ($request->page ) ? (int)$request->page  :  1;
+        $order_by = ( $request->order_by )? $request->order_by  :'id:desc';
         $order_by = explode( ':', $order_by );
 
         $data = [];
+        $count_all = 0;
+
 
         if( $filter ) {
             $data = $this->handleFilter( $filter, $per_page, $page, $order_by, $search );
-            return response()->json( $data, 200 );
-        }
+            $count_all = $this->countHandleFilter( $filter, $per_page, $page, $order_by, $search );
 
-        if( $search ){
+        }else if( $search ){
             $data = $this->handleSearch( $per_page, $page, $order_by, $search );
-            return response()->json( $data, 200 );
+            $count_all = $this->countHandleSearch( $per_page, $page, $order_by, $search );
+
+        }else{
+            $data = Movies::orderBy( $order_by[0], $order_by[1])->skip( $this->getOffset( $per_page, $page ) )->take( $per_page )->get();
+            $count_all = Movies::orderBy( $order_by[0], $order_by[1])->count();
         }
 
-        $data = Movies::orderBy( $order_by[0], $order_by[1])->skip( $this->getOffset( $per_page, $page ) )->take( $per_page )->get();
+        $pagination = [
+            "page" => $page,
+            "offset" => $this->getOffset( $per_page, $page ),
+            "per_page" => $per_page,
+            "count_all" => $count_all,
+        ];
 
-        return response()->json($data, 200);
+        $output = [ "data" => $data, "pagination" => $pagination ];
+
+        return response()->json($output, 200);
 
 
     }
@@ -68,6 +81,34 @@ class Movie extends Controller
         return $data;
     }
 
+    private function countHandleFilter( $filter, $per_page, $page, $order_by, $search ){
+        $offset = $this->getOffset( $per_page, $page );
+        $data = [];
+
+        if( $filter  ){
+            $filters = explode( ';', $filter );
+            foreach ($filters as $fil) {
+                $f = explode(':', $fil);
+
+                if( count( $f ) === 2 && $search ){
+                    $data = Movies::where($f[0],$f[1])
+                    ->where("title","like","%". $search ."%")
+                    ->orWhere("description","like","%". $search . "%")->orderBy( $order_by[0], $order_by[1])->count();
+                }else if( count( $f ) === 3 && $search  ) {
+                    $data = Movies::where($f[0],$f[1],$f[2])
+                    ->where("title","like","%". $search ."%")
+                    ->orWhere("description","like","%". $search . "%")->orderBy( $order_by[0], $order_by[1])->count();
+                }else if( count( $f ) === 2 && ! $search ){
+                    $data = Movies::where($f[0],$f[1])->orderBy( $order_by[0], $order_by[1])->count();
+                }else{
+                    $data = Movies::where($f[0],$f[1],$f[2])->orderBy( $order_by[0], $order_by[1])->count();
+                }
+            }
+        }
+
+        return $data;
+    }
+
     private function handleSearch( $per_page, $page, $order_by, $search ){
         $offset = $this->getOffset( $per_page, $page );
         return Movies::where("title","like","%". $search ."%")
@@ -76,6 +117,14 @@ class Movie extends Controller
         ->skip( $offset )
         ->take( $per_page )
         ->get();
+    }
+
+    private function countHandleSearch( $per_page, $page, $order_by, $search ){
+        $offset = $this->getOffset( $per_page, $page );
+        return Movies::where("title","like","%". $search ."%")
+        ->orWhere("description","like","%". $search . "%")
+        ->orderBy($order_by[0],$order_by[1])
+        ->count();
     }
 
 
@@ -100,7 +149,7 @@ class Movie extends Controller
         // var_dump( $image );
         // exit();
         $name_poster = date('mdYHis') . uniqid().$image->hashName();
-        $image->storeAs('public/poster', $name_poster );
+        $image->storeAs('.', $name_poster,['disk' => 'public_uploads'] );
 
         $data = [
             "title" => $request->title,
@@ -121,12 +170,18 @@ class Movie extends Controller
 
     public function update( Request $request, $id )
     {
-        $validator = Validator::make($request->all(), [
-            // 'poster'     => 'required|image|mimes:png,jpg,jpeg',
-            'title'     => 'required|unique:movies,title',
+        $rules = [
+            'title'     => 'required',
             'description' => 'required',
             'genre' => 'required',
-        ]);
+        ];
+
+        if( $request->poster ){
+           $rules['poster'] = 'image|mimes:png,jpg,jpeg';
+        }
+
+        $validator = Validator::make($request->all(), $rules);
+
 
         if( $validator->fails() )
         {
@@ -134,16 +189,26 @@ class Movie extends Controller
             return response()->json([ "message" => $message ], 402);
         }
 
-
         $data = [
             "title" => $request->title,
-            // "poster" => $request->poster,
             "description" => $request->description,
             "genre" => $request->genre,
-            // "rating" => $request->rating,
+            "rating" => $request->rating,
         ];
 
+        $image       = $request->file('poster');
+
+        if( $request->poster && $image ){
+            $name_poster = date('mdYHis') . uniqid().$image->hashName();
+            $image->storeAs('.', $name_poster,['disk' => 'public_uploads'] );
+            $data["poster"] = $name_poster;
+            if( File::exists( public_path()."/assets/".$request->old_poster) ){
+                File::delete( public_path()."/assets/".$request->old_poster);
+            }
+        }
+
         Movies::whereId( $id )->update( $data );
+
 
         $output=[
             "success" => TRUE,
@@ -155,8 +220,16 @@ class Movie extends Controller
 
     public function delete( Request $request, $id )
     {
+
+        $image = Movies::find( $id );
+        $image = $image->poster;
+
         $movie = Movies::findOrFail( $id );
         $movie->delete();
+
+        if( File::exists( public_path()."/assets/".$image) ){
+            File::delete( public_path()."/assets/".$image );
+        }
 
         $output = [
             "success" => TRUE,

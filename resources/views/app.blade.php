@@ -39,8 +39,8 @@
     <link rel="icon" href="favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Svelte + Vite App</title>
-    <script type="module" crossorigin src="{{ asset('assets/index.js') }}"></script>
-    <link rel="stylesheet" href="{{ asset('assets/index.css') }}">
+    <script type="module" crossorigin src="{{ asset('assets/index.695e1dd0.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/index.a36cc0c0.css') }}">
 
     <script>
         let base_url = <?php echo json_encode( url('/') )?>;

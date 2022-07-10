@@ -19,6 +19,6 @@ Route::get('/', function () {
 });
 
 Route::get('/movie', [Movie::class,'getAll']);
+Route::post('/movie/{id}', [Movie::class,'update']);
 Route::post('/movie', [Movie::class,'store']);
-Route::put('/movie/{id}', [Movie::class,'update']);
 Route::delete('/movie/{id}', [Movie::class,'delete']);

@@ -14,15 +14,18 @@ class Rest
      *
      * @param { String } url
      * @param { GET|POST|PUT|PATCH } method
+     * @param { Object[]} params
      * @param { Object[]} data
      * @returns { Promise }
      */
-    request( url = "", method ="GET", data = {} , header = {}  )
+    request( url = "", method ="GET", params = {}, data = {} , header = {}  )
     {
+        console.log({ data });
         // @ts-ignore
         return axios({
             url : this.base_url + url,
             method : method,
+            params : params,
             data : data,
             header : header,
             responseType : 'json',

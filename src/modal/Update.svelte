@@ -7,21 +7,39 @@
     import { faCamera } from '@fortawesome/free-solid-svg-icons/index.es'
 
     const dispatch = createEventDispatcher();
+    export let data_selected;
 
-    let title = "";
-    let poster = "";
+    $:if( data_selected ){
+        assignToData();
+        console.log({ data_selected });
+    }
+
+    let title  = "";
+    let id = "";
+    let old_poster = "";
     let description = "";
     let genre = "";
     let rating = "";
     let button_close;
     let input_poster;
     let image ;
+    let poster;
+
+    function assignToData()
+    {
+        id    = data_selected.id;
+        title = data_selected.title;
+        old_poster = data_selected.poster;
+        description= data_selected.description;
+        genre= data_selected.genre;
+        rating = data_selected.rating;
+    }
 
 
-    function create()
+    function update()
     {
         let Request = new Rest();
-        let data = { title, poster : poster[0], description, genre, rating };
+        let data = { title, poster : poster[0], description, genre, rating , old_poster };
 
         var form_data = new FormData();
 
@@ -29,7 +47,7 @@
             form_data.append(key, data[key]);
         }
         // @ts-ignore
-        let req = Request.request("/movie","POST",{}, form_data, { 'Content-Type':'multipart/form-data'} );
+        let req = Request.request("/movie/"+id ,"POST",{}, form_data,  { 'Content-Type':'multipart/form-data'} );
 
         req.then( (res)=> {
             console.log({ res });
@@ -41,8 +59,7 @@
 
     function triggerDispatch()
     {
-        reset();
-        dispatch('created',{ value : true });
+        dispatch('updated',{ value : true });
     }
 
 
@@ -53,6 +70,7 @@
 
     function changePoster()
     {
+        console.log({ poster });
         const file = input_poster.files[0];
 
         if (file) {
@@ -66,16 +84,6 @@
 
     }
 
-    function reset()
-    {
-        title = "";
-        poster = "";
-        description = "";
-        genre = "";
-        rating = "";
-        image = null;
-    }
-
 </script>
 <style>
     .image-preview img{
@@ -83,17 +91,17 @@
     }
 </style>
 
-<input type="checkbox" id="modal-create" class="modal-toggle" />
+<input type="checkbox" id="modal-update" class="modal-toggle" />
 <div class="modal">
   <div class="modal-box ">
-    <label for="modal-create" class="btn btn-sm btn-circle absolute right-2 top-2" bind:this={ button_close }>✕</label>
-    <h3 class="text-lg font-bold">Tambah Movie</h3>
+    <label for="modal-update" class="btn btn-sm btn-circle absolute right-2 top-2" bind:this={ button_close }>✕</label>
+    <h3 class="text-lg font-bold">Ubah Movie { title }</h3>
     <div class="flex justify-center">
         <div>
             <div class="wrap-image-priview w-full">
                 <div class="image-preview w-full">
                     <img bind:this={ image } src="" class="{ ( ! image ) ? 'hidden' : '' }" >
-                    <img src={ DefaultPoster }  class="{ ( poster ) ? 'hidden' : ''}" >
+                    <img src= "./assets/{ old_poster }"  class="{ ( poster ) ? 'hidden' : ''}" >
                 </div>
                 <div class="w-full mt-4">
                     <button type="button" class="btn btn-square btn-info color-white text-white w-full" on:click = { chooseImage }>
@@ -129,11 +137,11 @@
                 </select>
             </div>
             <div class="form-control w-full max-w-xs mt-4">
-                <input type="text" placeholder="Rating Misal : 8.5" min="1" max="10" class="input input-bordered input-success w-full max-w-xs" bind:value = {rating}/>
+                <input type="text" placeholder="Rating" min="1" max="10" class="input input-bordered input-success w-full max-w-xs" bind:value = {rating}/>
             </div>
 
             <div class="form-control w-full max-w-xs mt-4">
-                <button type="button" class="btn btn-primary" on:click = { create }>Simpan</button>
+                <button type="button" class="btn btn-primary" on:click = { update }>Simpan</button>
             </div>
         </div>
 

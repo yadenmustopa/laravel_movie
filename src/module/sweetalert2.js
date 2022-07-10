@@ -23,8 +23,32 @@ function openToast(icon = "success", title ="", position = "center"){
       })
 }
 
+/**
+ *
+ * @param { String } title
+ * @param { String } text
+ */
+function confirm( title = "Yakin !", text = "Apakah Yakin Akan Menghapus?")
+{
+   return Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes'
+      }).then((result) => {
+        if (result.isConfirmed) {
+            return Promise.resolve(true);
+        }
+
+        return;
+      })
+}
+
 // @ts-ignore
 // @ts-ignore
 export {
-    openToast
+    openToast, confirm
 }
