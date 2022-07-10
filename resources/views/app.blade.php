@@ -41,6 +41,13 @@
     <title>Svelte + Vite App</title>
     <script type="module" crossorigin src="{{ asset('assets/index.js') }}"></script>
     <link rel="stylesheet" href="{{ asset('assets/index.css') }}">
+
+    <script>
+        let base_url = <?php echo json_encode( url('/') )?>;
+        let root   = <?php echo json_encode( base_path() ) ?>;
+        window.config = { base_url,root };
+        console.log({ window });
+    </script>
   </head>
   <body>
     <div id="app"></div>

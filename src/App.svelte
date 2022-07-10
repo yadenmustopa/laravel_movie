@@ -1,26 +1,28 @@
 <script>
-  import logo from '@/assets/svelte.png';
-  import Counter from '@/lib/Counter.svelte';
-import TailwindCss from '@/TailwindCss.svelte';
+    import { onMount } from 'svelte';
+  import logo from '@/assets/natindo.png';
+//   import Counter from '@/lib/Counter.svelte';
+    import List from '@/components/List.svelte';
+    import Filter from '@/components/Filter.svelte';
+    import TailwindCss from '@/TailwindCss.svelte';
 </script>
 <TailwindCss />
-<main>
-  <img src={logo} alt="Svelte Logo" class="center"/>
-  <h1 class="text-3xl font-bold underline">
-    Hello world uy
-  </h1>
+<div class="w-100 flex justify-center">
+    <img src={ logo } style=";width:40rem" >
+</div>
+<main class="h-screen  transition-all duration-300">
+  <!-- <img src={logo} alt="Svelte Logo" class="center"/> -->
+  <!-- <h1 class="text-3xl font-bold underline">
+    Hello world
+  </h1> -->
+  <div class="">
+    <div class="bg-light-blue-500 pt-14 pb-28 px-3 md:px-8 h-auto">
+        <div class="container mx-auto max-w-full">
+            <List/>
+        </div>
+    </div>
+  </div>
 
-  <Counter />
-
-  <p>
-    Visit <a href="https://svelte.dev">svelte.dev</a> to learn how to build Svelte
-    apps.
-  </p>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme">SvelteKit</a> for
-    the officially supported framework, also powered by Vite!
-  </p>
 </main>
 
 <style>
